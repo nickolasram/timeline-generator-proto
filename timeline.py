@@ -1,31 +1,10 @@
 from timeline_landmark import Landmark
-import random
 from datetime import datetime
 import bisect
 import math
 import numpy
-
-
-class Year:
-    def __init__(self, placeholder=False, display_date=True, landmarks=[],
-                 year=0, end_year=0, span=False, width=0):
-        self.placeholder = placeholder
-        self.landmarks = landmarks
-        self.year = year
-        self.end_year = end_year
-        self.span = span
-        self.width = width
-        # for general landmarks that don't necessarily have a date
-        self.display_date = display_date
-        self.real_year = self.year
-        self.real_end_year = 0
-
-    def __str__(self):
-        return f'{"placeholder" if self.placeholder else ""} ' \
-               f'{[x.toString() for x in self.landmarks] if len(self.landmarks) else ""} ' \
-               f'year: {self.year}  ' \
-               f'end year: {self.end_year if self.end_year > 0 else ""} ' \
-               f'real_year: {self.real_year} {self.real_end_year if self.span else ""} '
+from timeline_year import Year
+import json
 
 
 class Timeline:
@@ -40,6 +19,7 @@ class Timeline:
         self.outlier_threshold = 1
         self.negative_outliers = []
         self.positive_outliers = []
+        self.column_tracker = 1
 
     def __str__(self):
         return_string = f'start: {self.start.strftime("%Y %b")}, end: {self.end.strftime("%Y %b")}\n' \
@@ -132,6 +112,8 @@ class Timeline:
                 new_year = Year(year=start_year + cumulative_value * self.gradient,
                              end_year=start_year + distance - cumulative_value * self.gradient,
                              placeholder=True, span=True)
+                new_year.x_coordinate = self.column_tracker
+                self.column_tracker += 3
                 new_year.real_year = real_year + cumulative_value * self.gradient
                 new_year.real_end_year = real_year + real_distance - cumulative_value * self.gradient
                 self.timeline.append(new_year)
@@ -139,11 +121,15 @@ class Timeline:
             else:
                 if coefficient > 0:
                     new_year = Year(year=start_year + cumulative_value * self.gradient, placeholder=True)
+                    new_year.x_coordinate = self.column_tracker
+                    self.column_tracker += 1
                     new_year.real_year = real_year + cumulative_value * self.gradient
                     self.timeline.append(new_year)
                 else:
                     new_year = Year(year=start_year + distance - cumulative_value * self.gradient, placeholder=True)
                     new_year.real_year = real_year + real_distance - cumulative_value * self.gradient
+                    new_year.x_coordinate = self.column_tracker
+                    self.column_tracker += 1
                     self.timeline.append(new_year)
             cumulative_value += coefficient
 
@@ -192,13 +178,16 @@ class Timeline:
             self.timeline = ['empty']
         elif len(self.timeline) == 1:
             only_date = self.landmarks[0].date
-            only_year = Year(year=only_date.year, landmarks=[self.landmarks[0]])
+            only_year = Year(year=only_date.year, landmarks=[])
             only_year.real_year = self.landmarks[0].real_date.year
+            only_year.x_coordinate = 1
+            only_year.set_landmarks([self.landmarks[0]])
             self.timeline = [only_year]
         else:
             first_landmark = self.landmarks[0]
             first_year = Year(year=first_landmark.date.year, landmarks=[first_landmark])
             first_year.real_year = first_landmark.real_date.year
+            first_year.x_coordinate = self.column_tracker
             self.timeline = [first_year]
             timeline_index = 0
             for i in range(len(self.landmarks[1:])):
@@ -206,32 +195,57 @@ class Timeline:
                 distance = (landmark.date.year - self.timeline[timeline_index].year)
                 if distance == 0:
                     self.timeline[timeline_index].landmarks.append(landmark)
-                elif 0 < distance <= 1 * self.gradient:
-                    new_year = Year(year=landmark.date.year, landmarks=[landmark])
-                    new_year.real_year = landmark.real_date.year
-                    self.timeline.append(new_year)
-                    timeline_index += 1
-                elif 1 * self.gradient < distance <= 5 * self.gradient:
-                    for j in range(1, distance, self.gradient):
-                        if self.timeline[timeline_index].year + self.gradient >= landmark.date.year:
-                            break
-                        new_year = Year(year=self.timeline[timeline_index].year + self.gradient, placeholder=True)
-                        new_year.real_year = self.timeline[timeline_index].real_year + self.gradient
+                else:
+                    self.timeline[timeline_index].generate_year_grid()
+                    self.column_tracker += self.timeline[timeline_index].rightmost_column +1
+                    if 0 < distance <= 1 * self.gradient:
+                        new_year = Year(year=landmark.date.year, landmarks=[landmark])
+                        new_year.x_coordinate = self.column_tracker
+                        new_year.real_year = landmark.real_date.year
                         self.timeline.append(new_year)
                         timeline_index += 1
-                    new_year = Year(year=landmark.date.year, landmarks=[landmark])
-                    new_year.real_year = landmark.real_date.year
-                    self.timeline.append(new_year)
-                    timeline_index += 1
-                else:
-                    if i == 0:
-                        z_score_difference = abs(self.landmarks[0].z_score - landmark.z_score)
+                    elif 1 * self.gradient < distance <= 5 * self.gradient:
+                        for j in range(1, distance, self.gradient):
+                            if self.timeline[timeline_index].year + self.gradient >= landmark.date.year:
+                                break
+                            new_year = Year(year=self.timeline[timeline_index].year + self.gradient, placeholder=True)
+                            new_year.x_coordinate = self.column_tracker
+                            self.column_tracker += 1
+                            new_year.real_year = self.timeline[timeline_index].real_year + self.gradient
+                            self.timeline.append(new_year)
+                            timeline_index += 1
+                        new_year = Year(year=landmark.date.year, landmarks=[landmark])
+                        new_year.x_coordinate = self.column_tracker
+                        new_year.real_year = landmark.real_date.year
+                        self.timeline.append(new_year)
+                        timeline_index += 1
                     else:
-                        z_score_difference = abs(landmark.z_score - self.landmarks[1:][i-1].z_score)
-                    real_distance = landmark.real_date.year - self.timeline[timeline_index].real_year
-                    self.generate_span(self.timeline[timeline_index].year, self.timeline[timeline_index].real_year,
-                                       distance, real_distance, z_score_difference)
-                    new_year = Year(year=landmark.date.year, landmarks=[landmark])
-                    new_year.real_year = landmark.real_date.year
-                    self.timeline.append(new_year)
-                    timeline_index += 4 + (z_score_difference*2)
+                        if i == 0:
+                            z_score_difference = abs(self.landmarks[0].z_score - landmark.z_score)
+                        else:
+                            z_score_difference = abs(landmark.z_score - self.landmarks[1:][i-1].z_score)
+                        real_distance = landmark.real_date.year - self.timeline[timeline_index].real_year
+                        self.generate_span(self.timeline[timeline_index].year, self.timeline[timeline_index].real_year,
+                                        distance, real_distance, z_score_difference)
+                        new_year = Year(year=landmark.date.year, landmarks=[landmark])
+                        new_year.x_coordinate = self.column_tracker
+                        new_year.real_year = landmark.real_date.year
+                        self.timeline.append(new_year)
+                        timeline_index += 4 + (z_score_difference*2)
+                if i == len(self.landmarks[1:])-1:
+                    self.timeline[timeline_index].generate_year_grid()
+    
+    def set_landmarks(self, landmarks):
+        for landmark in landmarks:
+            self.add_landmark(landmark)
+        self.generate_timeline()
+
+    def dump_data(self):
+        landmark_dict = {
+            'landmarks': []
+        }
+        for landmark in self.landmarks:
+            # landmark.group_relationships()
+            landmark_dict['landmarks'].append(landmark.to_dict())
+        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+            json.dump(landmark_dict, outfile, indent=4)
