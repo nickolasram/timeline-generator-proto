@@ -16,7 +16,7 @@ class Timeline:
         self.gradient = 1000
         self.range = 0
         self.timeline = []
-        self.outlier_threshold = 1
+        self.outlier_threshold = 3
         self.negative_outliers = []
         self.positive_outliers = []
         self.column_tracker = 1
@@ -143,7 +143,10 @@ class Timeline:
                 following_year = self.negative_outliers[i+1].real_date.year
             distance = following_year - landmark.real_date.year
             if distance < 7:
-                new_year = self.negative_outliers[i+1].date.year - distance
+                if i == len(self.negative_outliers)-1:
+                    new_year = following_year - distance
+                else:
+                    new_year = self.negative_outliers[i+1].date.year - distance
                 landmark.date = datetime(new_year, landmark.date.month, landmark.date.day)
             else:
                 if i == len(self.negative_outliers)-1:
@@ -160,7 +163,10 @@ class Timeline:
                 previous_year = self.positive_outliers[i-1].real_date.year
             distance = landmark.real_date.year - previous_year
             if distance < 7:
-                new_year = self.positive_outliers[i-1].date.year + distance
+                if i == 0:
+                    new_year = previous_year + distance
+                else:
+                    new_year = self.positive_outliers[i-1].date.year + distance
                 landmark.date = datetime(new_year, landmark.date.month, landmark.date.day)
             else:
                 if i == 0:
@@ -184,7 +190,8 @@ class Timeline:
             only_year.set_landmarks([self.landmarks[0]])
             self.timeline = [only_year]
         else:
-            first_landmark = self.landmarks[0]
+            first_landmark: Landmark = self.landmarks[0]
+            first_landmark.group_relationships()
             first_year = Year(year=first_landmark.date.year, landmarks=[first_landmark])
             first_year.real_year = first_landmark.real_date.year
             first_year.x_coordinate = self.column_tracker
@@ -192,12 +199,13 @@ class Timeline:
             timeline_index = 0
             for i in range(len(self.landmarks[1:])):
                 landmark = self.landmarks[1:][i]
+                landmark.group_relationships()
                 distance = (landmark.date.year - self.timeline[timeline_index].year)
                 if distance == 0:
                     self.timeline[timeline_index].landmarks.append(landmark)
                 else:
                     self.timeline[timeline_index].generate_year_grid()
-                    self.column_tracker += self.timeline[timeline_index].rightmost_column +1
+                    self.column_tracker += self.timeline[timeline_index].rightmost_column + 1
                     if 0 < distance <= 1 * self.gradient:
                         new_year = Year(year=landmark.date.year, landmarks=[landmark])
                         new_year.x_coordinate = self.column_tracker
@@ -245,7 +253,6 @@ class Timeline:
             'landmarks': []
         }
         for landmark in self.landmarks:
-            # landmark.group_relationships()
             landmark_dict['landmarks'].append(landmark.to_dict())
-        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+        with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
             json.dump(landmark_dict, outfile, indent=4)
