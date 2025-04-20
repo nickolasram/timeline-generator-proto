@@ -174,7 +174,12 @@ class Landmark:
 
     def find_rel_title_point(self, start_angle, end_angle, index, denominator, future):
         angular_adjustment = start_angle
-        denominator = min(denominator, 7)
+        titles_shown = 5
+        if self.size.value['x'] == 5:
+            titles_shown = 6
+        if self.size.value['x'] == 7:
+            titles_shown = 7
+        denominator = min(denominator, titles_shown)
         numerator = index+1
         if not future:
             numerator = denominator - numerator
@@ -196,7 +201,7 @@ class Landmark:
                 group.angle, group.end_angle, i, denominator, future
             )
             relationship_dict = {
-                'title': relationship.title + f"{i}",
+                'title': relationship.title,
                 'x': title_location[0],
                 'y': title_location[1],
                 'dx': 0 if future else -15,

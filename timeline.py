@@ -254,5 +254,6 @@ class Timeline:
         }
         for landmark in self.landmarks:
             landmark_dict['landmarks'].append(landmark.to_dict())
-        with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
+        # with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
+        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
             json.dump(landmark_dict, outfile, indent=4)
