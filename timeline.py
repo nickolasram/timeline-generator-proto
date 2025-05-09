@@ -1,10 +1,21 @@
 from timeline_landmark import Landmark
+from bisect import bisect_left
 from datetime import datetime
 import bisect
 import math
 import numpy
 from timeline_year import Year
 import json
+import uuid
+
+
+class YearIndex:
+    def __init__(self, percentage, year):
+        self.percentage = percentage
+        self.year = year
+
+    def __lt__(self, other):
+        return self.percentage < other.percentage
 
 
 class Timeline:
@@ -20,6 +31,12 @@ class Timeline:
         self.negative_outliers = []
         self.positive_outliers = []
         self.column_tracker = 1
+        self.timeline_distance_across = 0
+        self.title = 'Title'
+        self.note = False
+        self.citations = False
+        self.authors = False
+        self.id = str(uuid.uuid4())[:8] + str(uuid.uuid4())[:8]
 
     def __str__(self):
         return_string = f'start: {self.start.strftime("%Y %b")}, end: {self.end.strftime("%Y %b")}\n' \
@@ -117,6 +134,7 @@ class Timeline:
                 new_year.real_year = real_year + cumulative_value * self.gradient
                 new_year.real_end_year = real_year + real_distance - cumulative_value * self.gradient
                 self.timeline.append(new_year)
+                self.timeline_distance_across += 1
                 coefficient = -1
             else:
                 if coefficient > 0:
@@ -125,12 +143,14 @@ class Timeline:
                     self.column_tracker += 1
                     new_year.real_year = real_year + cumulative_value * self.gradient
                     self.timeline.append(new_year)
+                    self.timeline_distance_across += 0.75
                 else:
                     new_year = Year(year=start_year + distance - cumulative_value * self.gradient, placeholder=True)
                     new_year.real_year = real_year + real_distance - cumulative_value * self.gradient
                     new_year.x_coordinate = self.column_tracker
                     self.column_tracker += 1
                     self.timeline.append(new_year)
+                    self.timeline_distance_across += 0.75
             cumulative_value += coefficient
 
     def re_evaluate_outliers(self):
@@ -189,17 +209,19 @@ class Timeline:
             only_year.x_coordinate = 1
             only_year.set_landmarks([self.landmarks[0]])
             self.timeline = [only_year]
+            self.timeline_distance_across = 1
         else:
             first_landmark: Landmark = self.landmarks[0]
-            first_landmark.group_relationships()
+            first_landmark.group_relationships(first_landmark.size.value['x'])
             first_year = Year(year=first_landmark.date.year, landmarks=[first_landmark])
             first_year.real_year = first_landmark.real_date.year
             first_year.x_coordinate = self.column_tracker
             self.timeline = [first_year]
+            self.timeline_distance_across = 1
             timeline_index = 0
             for i in range(len(self.landmarks[1:])):
                 landmark = self.landmarks[1:][i]
-                landmark.group_relationships()
+                landmark.group_relationships(landmark.size.value['x'])
                 distance = (landmark.date.year - self.timeline[timeline_index].year)
                 if distance == 0:
                     self.timeline[timeline_index].landmarks.append(landmark)
@@ -211,6 +233,7 @@ class Timeline:
                         new_year.x_coordinate = self.column_tracker
                         new_year.real_year = landmark.real_date.year
                         self.timeline.append(new_year)
+                        self.timeline_distance_across += 0.75
                         timeline_index += 1
                     elif 1 * self.gradient < distance <= 5 * self.gradient:
                         for j in range(1, distance, self.gradient):
@@ -221,11 +244,13 @@ class Timeline:
                             self.column_tracker += 1
                             new_year.real_year = self.timeline[timeline_index].real_year + self.gradient
                             self.timeline.append(new_year)
+                            self.timeline_distance_across += 0.75
                             timeline_index += 1
                         new_year = Year(year=landmark.date.year, landmarks=[landmark])
                         new_year.x_coordinate = self.column_tracker
                         new_year.real_year = landmark.real_date.year
                         self.timeline.append(new_year)
+                        self.timeline_distance_across += 0.75
                         timeline_index += 1
                     else:
                         if i == 0:
@@ -239,6 +264,7 @@ class Timeline:
                         new_year.x_coordinate = self.column_tracker
                         new_year.real_year = landmark.real_date.year
                         self.timeline.append(new_year)
+                        self.timeline_distance_across += 0.75
                         timeline_index += 4 + (z_score_difference*2)
                 if i == len(self.landmarks[1:])-1:
                     self.timeline[timeline_index].generate_year_grid()
@@ -248,12 +274,52 @@ class Timeline:
             self.add_landmark(landmark)
         self.generate_timeline()
 
-    def dump_data(self):
-        landmark_dict = {
-            'landmarks': []
+    def to_dict(self):
+        timeline_dict = {
+            'meta': {
+                'timelineTitle': self.title,
+                'citations': self.citations,
+                'note': self.note,
+                'authors': self.authors,
+                'id': self.id
+            },
+            'landmarks': [],
+            'years': [],
+            'yearsIndex': {}
         }
         for landmark in self.landmarks:
-            landmark_dict['landmarks'].append(landmark.to_dict())
+            timeline_dict['landmarks'].append(landmark.to_dict())
+        timeline_distance = 0
+        years_percentages = [YearIndex(0, self.timeline[0].year)]
+        for year in self.timeline:
+            if timeline_distance == 0:
+                timeline_distance += 1
+            else:
+                if year.span:
+                    timeline_distance += 1
+                else:
+                    timeline_distance += 0.75
+                percentage = math.floor((timeline_distance / self.timeline_distance_across) * 100)
+                year.percentage_across = percentage
+                years_percentages.append(YearIndex(percentage, year.year))
+            timeline_dict['years'].append(year.to_dict())
+        years_index = {}
+        for i in range(101):
+            temp_year_index = YearIndex(i, None)
+            pos = bisect_left(years_percentages, temp_year_index)
+            years_index[i] = years_percentages[pos].year
+        timeline_dict['yearsIndex'] = years_index
         # with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
-        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
-            json.dump(landmark_dict, outfile, indent=4)
+        # # with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+        #     json.dump(timeline_dict, outfile, indent=4)
+        return timeline_dict
+
+    def dump_data(self, timelines=False):
+        if not timelines:
+            timelines = [self]
+        final_dict = {}
+        for timeline in timelines:
+            final_dict[timeline.id] = timeline.to_dict()
+        with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
+        # with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+            json.dump(final_dict, outfile, indent=4)
