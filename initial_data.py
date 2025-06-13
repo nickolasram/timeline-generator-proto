@@ -2,10 +2,13 @@ from datetime import datetime
 from timeline_landmark import Landmark, Size, Relationship
 from timeline_person import Person
 from timeline_era import Era
+from timeline_image import Image
+from timeline_link import Link
 
 color_pj = '#B2C063'
+pre_jazz_image = Image('https://www.messynessychic.com/wp-content/uploads/2022/01/scott-AJM-1999-20-284-001.jpg')
 pre_jazz = Era(title='Before Jazz', active_start=datetime(1878, 1, 1), display_date=False,
-               image='https://www.messynessychic.com/wp-content/uploads/2022/01/scott-AJM-1999-20-284-001.jpg',
+               images=[pre_jazz_image],
                color=color_pj, intro='Jazz was born from the synthesis of many musical traditions ranging from Classical music '
                                      'to slave work songs, from western african music to the relatively new genre of ragtime, and much more.')
 
@@ -26,7 +29,7 @@ gospel_desc = 'Chastized as the devil’s music, jazz may have even deeper ties 
 gospel = Landmark(color=color_pj, title='gospel', size=Size.SMALL, date=datetime(1878, 1, 3),
                   display_date=False, description=gospel_desc)
 
-bb_img = 'https://thumbnailer.digitalnz.org/?resize=664%3E&src=https%3A%2F%2Fndhadeliver.natlib.govt.nz%2FNLNZStreamGate%2Fget%3Fdps_pid%3DIE212927'
+bb_img = Image('https://thumbnailer.digitalnz.org/?resize=664%3E&src=https%3A%2F%2Fndhadeliver.natlib.govt.nz%2FNLNZStreamGate%2Fget%3Fdps_pid%3DIE212927')
 
 bb_desc = 'Drummer Baby Dodds recalled the instrumentation for the marching brass bands:' \
           '"There was a traditional line-up for the New Orleans parades. The ' \
@@ -50,7 +53,7 @@ bb_desc = 'Drummer Baby Dodds recalled the instrumentation for the marching bras
           'compositions. This blurring of musical genres was, as we shall see, central to the creation of jazz music.'
 
 brass_bands = Landmark(color=color_pj, title='brass bands', size=Size.SMALL, date=datetime(1878, 1, 4),
-                       display_date=False, image=bb_img, description=bb_desc)
+                       display_date=False, images=[bb_img], description=bb_desc)
 
 
 ragtime = Landmark(color=color_pj, title='ragtime', size=Size.SMALL, date=datetime(1878, 1, 5),
@@ -78,14 +81,16 @@ onward.landmark_end_date = datetime(1930, 1, 1)
 
 color_noj = '#7c45b9'
 
-noj_img = 'https://cdn.britannica.com/80/205980-050-190E3A67/Buddy-Bolden-Band-New-Orleans-Jimmie-Johnson-1905.jpg'
+noj_img = Image('https://cdn.britannica.com/80/205980-050-190E3A67/Buddy-Bolden-Band-New-Orleans-Jimmie-Johnson-1905.jpg',
+                'Buddy Bolden Band, New Orleans, c. 1905: (back row from left to right) Jimmie Johnson, Buddy Bolden, '
+                'Brock Mumford, and Willie Cornish and (front row from left to right) Frank Lewis and Willie Warner.')
 
 new_orleans_jazz = Era(active_start=datetime(1889, 1, 1), end_year=datetime(1927, 1, 1), color=color_noj,
-                       title='New Orleans Jazz', image=noj_img)
+                       title='New Orleans Jazz', images=[noj_img])
 
-new_orleans_img = 'https://cdn.britannica.com/92/64492-050-C5D590BE.jpg'
+new_orleans_img = Image('https://cdn.britannica.com/92/64492-050-C5D590BE.jpg')
 new_orleans = Landmark(size=Size.SMALL, color=color_noj, title='New Orleans', display_date=False,
-                       date=datetime(1889, 1, 2), image=new_orleans_img)
+                       date=datetime(1889, 1, 2), images=[new_orleans_img])
 
 storyville_desc = 'A red-light district in New Orleans that existed for a scant twenty years' \
                   'usually considered the birthplace of jazz. Though ' \
@@ -131,12 +136,20 @@ buddy_desc = 'Buddy Bolden, often cited as the first jazz musician, may well be 
              'a brash move, and no doubt a key reason why he captured the attention of' \
              ' his contemporaries and the later chroniclers of New Orleans jazz.'
 
+bolden_img = Image('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Buddy_Bolden_001.png/800px-Buddy_Bolden_001.png',
+                   'Bolden c.1905')
 buddy_bolden = Person(size=Size.LARGE, title='Buddy Bolden',
                       intro='the father of jazz', birthday=datetime(1877, 9, 6), deathday=datetime(1931, 11, 4),
                       active_start=datetime(1890, 1, 1), active_end=datetime(1907, 1, 1), color=color_noj,
-                      image='https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Buddy_Bolden_001.png/800px-Buddy_Bolden_001.png',
+                      images=[bolden_img],
                       description=buddy_desc
                       )
+buddy_bolden.key_points = ['Often cited as the first jazz musician',
+                           'Synthesized music styles such as gospel, the blues, and popular string ensemble music',
+                           'Born in New Orleans']
+buddy_bolden.sources = ['The History Of Jazz ( Ted Gioia)',
+                          'https://en.wikipedia.org/wiki/Buddy_Bolden']
+
 
 oejf_desc = 'Although Bolden has been typically heralded as the progenitor of jazz, such simplistic lineages ignore the' \
             ' broader musical ferment taking place in turn-of-the-century New Orleans. Many musicians—mostly black, ' \
@@ -188,12 +201,12 @@ eagle_desc='The Eagle Band was an American jazz band during the Ragtime and Earl
            ' Messengers, which would emerge in decades to come, The Eagle Band would serve as a stepping-stone' \
            ' for many prominent Hot Jazz players during the Early Jazz period. The Eagle Band was known as a very ' \
            'authentic, poignant band known for its ability to play slow gut-wrenching blues.'
-eagle_img = 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Eagle_Band_1916_New_Orleans.jpg'
+eagle_img = Image('https://upload.wikimedia.org/wikipedia/commons/3/3e/Eagle_Band_1916_New_Orleans.jpg')
 eagle_band = Landmark(size=Size.SMALL, title='The Eagle Band', intro="Buddy Bolden's band during the early jazz era",
-                      date=datetime(1895, 1, 1), image=eagle_img, color=color_noj, description=eagle_desc)
+                      date=datetime(1895, 1, 1), images=[eagle_img], color=color_noj, description=eagle_desc)
 eagle_band.landmark_end_date = datetime(1929, 1, 1)
 
-lsb_link = 'https://www.youtube.com/watch?v=xPbLtSZc2-I&ab_channel=mrblindfreddy9999'
+lsb_link = Link('https://www.youtube.com/watch?v=xPbLtSZc2-I&ab_channel=mrblindfreddy9999', 'Youtube Link')
 
 lsb_desc='some twenty years transpired between Bolden’s glory days and the release of the first jazz recordings. ' \
          'Nor do these first commercial discs simplify the historian’s task. If anything, the ' \
@@ -214,9 +227,9 @@ lsb_desc='some twenty years transpired between Bolden’s glory days and the rel
          'unconventional and ostensibly vulgar nature of the music. Soon after, the ' \
          'Victor label overcame such scruples, and a second session produced a major ' \
          'commercial success in “Livery Stable Blues.”'
-lsb_img='https://upload.wikimedia.org/wikipedia/commons/d/d2/Livery-stable.jpg'
-livery_stable_blues = Landmark(title='Livery Stable Blues', color=color_noj, size=Size.MEDIUM, link=lsb_link,
-                               date=datetime(1917, 1, 1), intro='the first recorded jazz song', image=lsb_img,
+lsb_img=Image('https://upload.wikimedia.org/wikipedia/commons/d/d2/Livery-stable.jpg')
+livery_stable_blues = Landmark(title='Livery Stable Blues', color=color_noj, size=Size.MEDIUM, links=[lsb_link],
+                               date=datetime(1917, 1, 1), intro='the first recorded jazz song', images=[lsb_img],
                                description=lsb_desc)
 
 odjb_desc = 'The Original Dixieland Jass Band (ODJB) was a Dixieland jazz band ' \
@@ -228,9 +241,9 @@ odjb_desc = 'The Original Dixieland Jass Band (ODJB) was a Dixieland jazz band '
             ' record jazz commercially and to have hit recordings in the genre. Band leader and' \
             ' cornetist Nick LaRocca argued that ODJB deserved recognition as the first band to' \
             ' record jazz commercially and the first band to establish jazz as a musical idiom or genre.'
-odjb_image='https://upload.wikimedia.org/wikipedia/commons/9/94/Tigerag.jpg'
+odjb_image=Image('https://upload.wikimedia.org/wikipedia/commons/9/94/Tigerag.jpg')
 odjb = Landmark(color=color_noj, title='Original Dixieland Jass Band', date=datetime(1916, 1, 1),
-                description=odjb_desc, size=Size.SMALL, image=odjb_image)
+                description=odjb_desc, size=Size.SMALL, images=[odjb_image])
 odjb.landmark_end_date = datetime(1926, 1, 1)
 
 jelly_roll_desc = 'Jelly Roll Morton, the greatest of the New Orleans jazz composers, also ' \
@@ -279,10 +292,11 @@ jelly_roll_desc = 'Jelly Roll Morton, the greatest of the New Orleans jazz compo
                   '1920s include an invigorating 1927 trio session with clarinetist Johnny ' \
                   'Dodds and drummer Baby Dodds, a tantalizing 1924 duet date with King ' \
                   'Oliver, and Morton’s 1923 work with the New Orleans Rhythm Kings.'
-jelly_roll_img = 'https://upload.wikimedia.org/wikipedia/commons/3/35/MortonBricktopRowCropMortonFace.jpg'
+jelly_roll_img = Image('https://upload.wikimedia.org/wikipedia/commons/3/35/MortonBricktopRowCropMortonFace.jpg',
+                       'Morton in 1918')
 jelly_roll = Person(title='Jelly Roll Morton', birthday=datetime(1890, 9, 20), deathday=datetime(1941, 7, 10),
                     active_start=datetime(1904, 1, 1), active_end=datetime(1941, 7, 10), size=Size.LARGE,
-                    image=jelly_roll_img, color=color_noj, intro="the world's greatest hot tune writer",
+                    images=[jelly_roll_img], color=color_noj, intro="the world's greatest hot tune writer",
                     description=jelly_roll_desc)
 
 bb_blues_desc="Though no recording of Buddy Bolden's music exists, " \
@@ -294,9 +308,9 @@ bb_blues_desc="Though no recording of Buddy Bolden's music exists, " \
               "Wellman Braud, and Zutty Singleton. Four months later, on December" \
               " 16, 1939, he recorded the tune as \"Buddy Bolden's Blues\" " \
               "on a solo session for General Records. It was later released in an album by Commodore."
-bb_blues_link = 'https://www.youtube.com/watch?v=qSFr1S0z6dA&ab_channel=cdbpdx'
+bb_blues_link = Link('https://www.youtube.com/watch?v=qSFr1S0z6dA&ab_channel=cdbpdx', 'Youtube link')
 bb_blues = Landmark(size=Size.SMALL, color=color_noj, title="Buddy Bolden's Blues",
-                    date=datetime(1939, 12, 16), link=bb_blues_link, description=bb_blues_desc)
+                    date=datetime(1939, 12, 16), links=[bb_blues_link], description=bb_blues_desc)
 
 color_jazz_age = '#9b1818'
 
@@ -334,26 +348,20 @@ jazz_age_desc = 'Or so it seems in retrospect. But the ebb and flow of any histo
                 'rising star; but, as with Charlie Parker’s innovations twenty years later, ' \
                 'Armstrong’s contributions eventually spread to every instrument in the ' \
                 'band. Don Redman’s arrangements, Coleman Hawkins’s saxophone work— one by one, the converts were won.'
-jazz_age_img = 'https://cdn.thecollector.com/wp-content/uploads/2022/03/ma-rainey-jazz-age-band-photo-1924-1925.jpg?width=1200&quality=55'
+jazz_age_img = Image('https://cdn.thecollector.com/wp-content/uploads/2022/03/ma-rainey-jazz-age-band-photo-1924-1925.jpg?width=1200&quality=55',
+                     'Gertrude Ma Rainey and her Georgia Jazz Band in Chicago in 1923. Bridgeman Images')
+gatsby_img = Image('https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg/500px-The_Great_Gatsby_Cover_1925_Retouched.jpg',
+                   'The Great Gatsby, Fitzgerald. Fitzgerald explores the major developments of the Roaring Twenties, including the Jazz Age.')
 jazz_age = Era(active_start=datetime(1920, 1, 1), end_year=datetime(1929, 1, 1), color=color_jazz_age,
-                       title='The Jazz Age', image=jazz_age_img, intro=jazz_age_intro, description=jazz_age_desc)
+               title='The Jazz Age', images=[jazz_age_img, gatsby_img], intro=jazz_age_intro, description=jazz_age_desc)
 
-prohibition_img = 'https://cdn.thecollector.com/wp-content/uploads/2022/03/frank-scherschel-men-women-celebrate-end-prohibition-1933.jpg?width=995&quality=55'
-prohibition = Landmark(title='prohibition', size=Size.SMALL, date=datetime(1920, 1, 17),
-                       color=color_jazz_age, image=prohibition_img)
-prohibition.landmark_end_date = datetime(1933, 12, 5)
-
-gatsby_img = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg/500px-The_Great_Gatsby_Cover_1925_Retouched.jpg'
-gatsby = Landmark(title='The Great Gatsby', size=Size.SMALL, color=color_jazz_age,
-                  date=datetime(1925, 4, 10), image=gatsby_img)
-
-chicago_img = 'https://cdn.britannica.com/51/64751-050-24A999CB.jpg'
+chicago_img = Image('https://cdn.britannica.com/51/64751-050-24A999CB.jpg')
 chicago = Landmark(color=color_noj, title='Chicago', size=Size.SMALL, date=datetime(1910, 1, 2), display_date=False,
-                   image=chicago_img)
+                   images=[chicago_img])
 
-new_york_img = 'https://cdn.britannica.com/89/64489-004-8CE3B4B5.jpg'
+new_york_img = Image('https://cdn.britannica.com/89/64489-004-8CE3B4B5.jpg')
 new_york = Landmark(color=color_jazz_age, title='New York', size=Size.SMALL, date=datetime(1920, 1, 3), display_date=False,
-                    image=new_york_img)
+                    images=[new_york_img])
 
 sidewalk_desc = 'This number was recorded in Chicago at the Webster Hotel on September 21st 1926 with George Mitchell ' \
                 'cornet, Kid Ory trombone, Barney Bigard, Omer Simeon, and Darnell Howard clarinets, Ferd "Jelly Roll"' \
@@ -386,13 +394,14 @@ sidewalk_desc = 'This number was recorded in Chicago at the Webster Hotel on Sep
                 'bars, with the return of the energetic New Orleans–style counterpoint. A ' \
                 'five-bar tag closes this whirlwind three-and-a-half-minute performance. In a ' \
                 'compact form, Morton has covered a world of sounds.'
-sidewalk_img = 'https://ia902301.us.archive.org/1/items/edison-51897_01_11361/cusb_ed_51897_01_11361_0b.jpg?cnt=0'
+sidewalk_img = Image('https://ia902301.us.archive.org/1/items/edison-51897_01_11361/cusb_ed_51897_01_11361_0b.jpg?cnt=0')
 sidewalk = Landmark(size=Size.SMALL, title='Sidewalk Blues', color=color_noj, date=datetime(1926, 9, 21),
-                    description=sidewalk_desc, image=sidewalk_img)
+                    description=sidewalk_desc, images=[sidewalk_img])
 
-rhp_img = 'https://64parishes.org/wp-content/uploads/2013/03/3077.jpg'
+rhp_img = Image('https://64parishes.org/wp-content/uploads/2013/03/3077.jpg',
+                '1926, Illinois, Chicago, Jelly Roll Morton and His Red Hot Peppers, L-R: Omer Simeon, Andrew Hilaire, John Lindsay, Jelly Roll Morton (seated in front), Johnny St. Cyr, Kid Ory, George Mitchell. (Photo by Michael Ochs Archive)')
 red_hot_peppers = Landmark(size=Size.MEDIUM, date=datetime(1926, 1, 1), color=color_noj, title='Red Hot Peppers',
-                           image=rhp_img)
+                           images=[rhp_img])
 red_hot_peppers.landmark_end_date = datetime(1930, 1, 1)
 
 diaspora_desc = 'One of the supreme ironies of the history of New Orleans jazz is that so ' \
@@ -432,15 +441,15 @@ louis_desc = 'Over the next several years, his ' \
              'for the young cornetist, Armstrong may have been unknown to jazz fans in ' \
              'Chicago; however, musicians in New Orleans were already taking note of ' \
              'this up-and-coming player.'
-louis_img = 'https://ids.si.edu/ids/deliveryService?max_w=800&id=NPG-NPG_94_43Armstrong-000002'
+louis_img = Image('https://ids.si.edu/ids/deliveryService?max_w=800&id=NPG-NPG_94_43Armstrong-000002')
 louis_armstrong = Person(color=color_noj, size=Size.LARGE, title='Louis Armstrong', birthday=datetime(1901, 8, 4),
                          deathday=datetime(1971, 6, 6), active_start=datetime(1918, 1, 1), active_end=datetime(1971, 1, 1),
-                         image=louis_img, description=louis_desc)
+                         images=[louis_img], description=louis_desc)
 
-king_oliver_img = 'https://upload.wikimedia.org/wikipedia/commons/5/52/King_Oliver_%281915_portrait%29.jpg'
+king_oliver_img = Image('https://upload.wikimedia.org/wikipedia/commons/5/52/King_Oliver_%281915_portrait%29.jpg')
 king_oliver = Person(color=color_noj, size=Size.LARGE, title='Joe "King" Oliver', birthday=datetime(1881, 12, 19),
                      deathday=datetime(1938, 4, 10), active_start=datetime(1907, 1, 1), active_end=datetime(1937, 1, 1),
-                     image=king_oliver_img)
+                     images=[king_oliver_img])
 
 king_band_desc = 'In the year 1921 Oliver took a group of musicians to California for a short stint, ' \
                  'this group would become the foundation of what would later be renamed as King Oliver’s Creole Jazz ' \
@@ -449,15 +458,14 @@ king_band_desc = 'In the year 1921 Oliver took a group of musicians to Californi
                  ' who later married Louis Armstrong, becoming his second wife. In this same year, Oliver sent' \
                  ' via telegram for Louis Armstrong to join him in his new band as his second cornet.'
 king_oliver_band = Landmark(title="King Oliver's Creole Jazz Band", color=color_noj, date=datetime(1921, 1, 1),
-                            size=Size.MEDIUM, description=king_band_desc
-                            )
+                            size=Size.MEDIUM, description=king_band_desc)
 
 
 
-kid_ory_img = 'https://upload.wikimedia.org/wikipedia/commons/5/50/Kidory.png'
+kid_ory_img = Image('https://upload.wikimedia.org/wikipedia/commons/5/50/Kidory.png')
 kid_ory = Person(color=color_noj, size=Size.LARGE, title='Kid Ory', birthday=datetime(1886, 12, 25),
                  deathday=datetime(1973, 1, 23), active_start=datetime(1910, 1, 1), active_end=datetime(1966, 1, 1),
-                 image=kid_ory_img)
+                 images=[kid_ory_img])
 
 ory_band_desc = 'Ory moved his six-piece band to New Orleans in 1910. Ory had one of the best-known bands in New' \
                ' Orleans in the 1910s, hiring many of the great jazz musicians of the city, including the cornetists' \
@@ -479,11 +487,11 @@ sidney_bechet_desc = 'Bechet played the most prominent role in developing the cl
                      'to the potential of timbre and phrasing. These skills allowed him to stand ' \
                      'out as a premier soloist, yet—unlike Armstrong—Bechet felt equally at ' \
                      'home submerging his melody lines in the larger ensemble.'
-sidney_bechet_img = 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Bechet.gif'
+sidney_bechet_img = Image('https://upload.wikimedia.org/wikipedia/commons/c/c9/Bechet.gif')
 sidney_bechet = Person(size=Size.LARGE, birthday=datetime(1897, 5, 14),
                        deathday=datetime(1959, 5, 14), active_start=datetime(1908, 1, 1),
                        active_end=datetime(1957, 1, 1), color=color_noj,
-                       image=sidney_bechet_img, intro='Armstrong’s stiffest challenge',
+                       images=[sidney_bechet_img], intro='Armstrong’s stiffest challenge',
                        title='Sidney Bechet', description=sidney_bechet_desc)
 
 
@@ -500,7 +508,7 @@ clarence_five = Landmark(size=Size.MEDIUM, color=color_jazz_age, title="Clarence
 armstrong_migrates = Landmark(size=Size.NODE, title='Armstrong migrates to Chicago', date=datetime(1919, 1, 1), color=color_noj)
 bechet_migrates = Landmark(size=Size.NODE, title='Bechet migrates to Europe', date=datetime(1919, 1, 2), color=color_noj)
 
-early_every_morn_img = 'https://images.genius.com/c28f10c94ebc48c7a0f9a09c9ac4d62a.996x1000x1.jpg'
+early_every_morn_img = Image('https://images.genius.com/c28f10c94ebc48c7a0f9a09c9ac4d62a.996x1000x1.jpg')
 early_every_morn_desc = 'This difference in temperament between the two great New Orleans ' \
                                 'players is evident in their December 1924 pairing on “Early Every Morn,” ' \
                                 'where they ostensibly support vocalist Alberta Hunter. Bechet’s soprano ' \
@@ -518,9 +526,9 @@ early_every_morn_desc = 'This difference in temperament between the two great Ne
                                 'to match any contender note for note, even the great Louis Armstrong. And ' \
                                 'this time Bechet steals the show with a bluesy coda.'
 early_every_morn = Landmark(size=Size.SMALL, title='Early Every Morn', date=datetime(1924, 12, 22),
-                            description=early_every_morn_desc, color=color_noj, image=early_every_morn_img)
+                            description=early_every_morn_desc, color=color_noj, images=[early_every_morn_img])
 
-bix_img = 'https://cdn.britannica.com/98/6398-004-DE3BE588/Bix-Beiderbecke.jpg?w=300'
+bix_img = Image('https://cdn.britannica.com/98/6398-004-DE3BE588/Bix-Beiderbecke.jpg?w=300')
 bix_desc = 'Beiderbecke’s first major band, the Wolverines, brought together a group ' \
            'of like-minded instrumentalists. These all but unknown young jazz devotees ' \
            'took their inspiration primarily from the performances of the New Orleans ' \
@@ -564,7 +572,7 @@ bix_desc = 'Beiderbecke’s first major band, the Wolverines, brought together a
            'great as they are, were just one facet of this new sound, this new style.'
 bix_beiderbecke = Person(size=Size.LARGE, title='Bix Beiderebecke', birthday=datetime(1903, 2, 10),
                          deathday=datetime(1931, 8, 6), active_start=datetime(1920, 1, 2), active_end=datetime(1931, 8, 6),
-                         color=color_jazz_age, image=bix_img)
+                         color=color_jazz_age, images=[bix_img])
 
 bix_death = Landmark(size=Size.NODE, title='Bix beiderbecke passes away', date=datetime(1931, 8, 6), color=color_jazz_age)
 
@@ -625,27 +633,27 @@ blues_fall = Landmark(size=Size.NODE, date=datetime(1922, 1, 1), title='The blue
 clarinetitis_desc = 'By Benny Goodman. An example of the influence of the various nonjazz musical tradtiions that the ' \
                     'multiethnic Chicagoans brought with them to their Jazz making.The minor key melodies on clarinetitis' \
                     'convey more than a hint of klezmer.'
-clarinetitis_img = 'https://www.popsike.pics/pix/20180819/232896269336.jpg'
-clarinetitis_link = 'https://www.youtube.com/watch?v=1bFOB59cT5E&ab_channel=AtticusJazz'
-clarinetitis = Landmark(size=Size.SMALL, title='Clarinetitis', date=datetime(1928, 6, 13), image=clarinetitis_img,
-                        description=clarinetitis_desc, link=clarinetitis_link, color=color_jazz_age)
+clarinetitis_img = Image('https://www.popsike.pics/pix/20180819/232896269336.jpg')
+clarinetitis_link = Link('https://www.youtube.com/watch?v=1bFOB59cT5E&ab_channel=AtticusJazz', 'Youtube Link')
+clarinetitis = Landmark(size=Size.SMALL, title='Clarinetitis', date=datetime(1928, 6, 13), images=[clarinetitis_img],
+                        description=clarinetitis_desc, links=[clarinetitis_link], color=color_jazz_age)
 
 thats_a_plenty_desc = 'By Benny Goodman. An example of the influence of the various nonjazz musical tradtiions that the ' \
                       'multiethnic Chicagoans brought with them to their Jazz making.The minor key melodies on ' \
                       '"That\'s a Plenty" convey more than a hint of klezmer.'
-thats_a_plenty_link = 'https://www.youtube.com/watch?v=saiY6YwsQKg&ab_channel=JonathanHolmes'
-thats_a_plenty_img = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.WkAk-5cxaeoenj52Plzk-AHaHa%26pid%3DApi&f=1&ipt=757c4470ef58718daa9289da473321cd90a7d046ee38a86135963f0150fb41d5'
+thats_a_plenty_link = Link('https://www.youtube.com/watch?v=saiY6YwsQKg&ab_channel=JonathanHolmes', 'Youtube Link')
+thats_a_plenty_img = Image('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.WkAk-5cxaeoenj52Plzk-AHaHa%26pid%3DApi&f=1&ipt=757c4470ef58718daa9289da473321cd90a7d046ee38a86135963f0150fb41d5')
 thats_a_plenty = Landmark(size=Size.SMALL, title="That's a Plenty", date=datetime(1928, 6, 13),
-                          description=thats_a_plenty_desc, link=thats_a_plenty_link, image=thats_a_plenty_img,
+                          description=thats_a_plenty_desc, links=[thats_a_plenty_link], images=[thats_a_plenty_img],
                           color=color_jazz_age)
 
-liza_img = 'https://ia801200.us.archive.org/22/items/78_liza_mckenzie-condons-chicagoans-mckenzie-condon-rubin_gbia3021815b/78_liza_mckenzie-condons-chicagoans-mckenzie-condon-rubin_gbia3021815b_itemimage.jpg?cnt=0'
+liza_img = Image('https://ia801200.us.archive.org/22/items/78_liza_mckenzie-condons-chicagoans-mckenzie-condon-rubin_gbia3021815b/78_liza_mckenzie-condons-chicagoans-mckenzie-condon-rubin_gbia3021815b_itemimage.jpg?cnt=0')
 liza_desc = 'By Red McKenzie And Condon\'s Chicagoans. Frank Teschemacher\'s use of 6/4 in his clarinet intro to' \
             '"Liza" is an example of the common fascination with contemporary classical music this generation\'s jazzmen' \
             'evidently had.'
-liza_link = 'https://www.youtube.com/watch?v=bApevgxvO7s&ab_channel=SwingBluesJazz78RPM'
-liza = Landmark(size=Size.SMALL, date=datetime(1927, 12, 16), description=liza_desc, link=liza_link,
-                image=liza_img, color=color_jazz_age, title='Liza')
+liza_link = Link('https://www.youtube.com/watch?v=bApevgxvO7s&ab_channel=SwingBluesJazz78RPM', 'Youtube Link')
+liza = Landmark(size=Size.SMALL, date=datetime(1927, 12, 16), description=liza_desc, links=[liza_link],
+                images=[liza_img], color=color_jazz_age, title='Liza')
 
 tram_desc = 'For a time in the 1920s, saxophonist Frank Trumbauer enjoyed an ' \
             'influence and reputation that even surpassed that of his frequent ' \
@@ -676,10 +684,10 @@ tram_desc = 'For a time in the 1920s, saxophonist Frank Trumbauer enjoyed an ' \
             'fatal passion was for alcohol, the forbidden fermented fruit of Prohibition, ' \
             'while Trumbauer drank little, and after a gig promptly returned home to his ' \
             'wife and child—with the result that he outlived his younger collaborator by a full quarter-century.'
-tram_img = 'https://upload.wikimedia.org/wikipedia/en/c/cf/Trumbauerfrankie20.jpg'
+tram_img = Image('https://upload.wikimedia.org/wikipedia/en/c/cf/Trumbauerfrankie20.jpg')
 tram = Person(title='Frankie "Tram" Trumbauer', size=Size.MEDIUM, color=color_jazz_age, birthday=datetime(1901, 5, 30),
               deathday=datetime(1956, 6, 11), active_start=datetime(1923, 1, 2), active_end=datetime(1939, 1, 1),
-              image=tram_img)
+              images=[tram_img])
 
 tram_bix_desc = 'After joining forces in 1925, the two musicians became a package deal for bandleaders. ' \
                 'They entered the Goldkette band at virtually the same time—Trumbauer later claimed that ' \
@@ -714,11 +722,12 @@ tram_bix_1927_desc = 'Beiderbecke and Trumbauer reached their peak on heartfelt 
                      'chords—are incorporated with such ease that it is easy to overlook the hard ' \
                      'harmonic edge to Bix’s melodicism. Instead, the technical aspects are ' \
                      'submerged in the free play of his musical creativity.'
-tram_bix_1927_link = 'https://www.youtube.com/watch?v=tyzw7CH692w&ab_channel=HeinzBecker'
-tram_bix_1927_img = 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2FvYqALyYDnTc%2Fhqdefault.jpg&f=1&nofb=1&ipt=e19610821a97d20b401c68efc74680fc109033b8dd16a1b7bbfbe52d5d7d5c05'
+tram_bix_1927_link = Link('https://www.youtube.com/watch?v=tyzw7CH692w&ab_channel=HeinzBecker', 'Singin\' the Blues Youtube Link')
+tram_bix_1927_link_2 = Link('https://www.youtube.com/watch?v=oW7YYt0F-K4&ab_channel=warholsoup100', "I'm Coming Virginia Youtube")
+tram_bix_1927_img = Image('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.ytimg.com%2Fvi%2FvYqALyYDnTc%2Fhqdefault.jpg&f=1&nofb=1&ipt=e19610821a97d20b401c68efc74680fc109033b8dd16a1b7bbfbe52d5d7d5c05')
 tram_bix_1927 = Landmark(size=Size.SMALL, title="Singin' the Blues and I'm Coming Virginia",
-                         date=datetime(1927, 2, 4), link=tram_bix_1927_link, description=tram_bix_1927_desc,
-                         color=color_jazz_age, image=tram_bix_1927_img)
+                         date=datetime(1927, 2, 4), links=[tram_bix_1927_link, tram_bix_1927_link_2], description=tram_bix_1927_desc,
+                         color=color_jazz_age, images=[tram_bix_1927_img])
 
 goldkette_orchestra_desc = 'In addition to Bix and Tram, the ' \
                            'Goldkette group also featured, at one time or another, Joe Venuti, Eddie ' \
@@ -753,18 +762,18 @@ goldkette_orchestra = Landmark(title='Jean Goldkette’s Victor Recording Orches
                                size=Size.MEDIUM, color=color_jazz_age, description=goldkette_orchestra_desc)
 goldkette_orchestra.landmark_end_date = datetime(1927, 1, 1)
 
-eddie_lang_img = 'https://media.snl.no/media/243463/standard_eddie-lang.jpg'
+eddie_lang_img = Image('https://media.snl.no/media/243463/standard_eddie-lang.jpg')
 eddie_lang = Person(intro='the father of jazz guitar', birthday=datetime(1902, 10, 25), deathday=datetime(1933, 3, 26),
                     active_start=datetime(1918, 1, 2), active_end=datetime(1933, 1, 1), color=color_jazz_age,
-                    size=Size.MEDIUM, title='Eddie Lang', image=eddie_lang_img)
+                    size=Size.MEDIUM, title='Eddie Lang', images=[eddie_lang_img])
 
-joe_venuti_img = 'https://www.lookandlearn.com/history-images/preview/M/M392/M392124_Giuseppe-Joe-Venuti.jpg'
+joe_venuti_img = Image('https://2.bp.blogspot.com/-um_mT3iEaw8/V6CBasN_bHI/AAAAAAAAEWY/dHpBiuMOcuoVDrK9OjljsSg-nlthWoSDACLcB/s1600/j%2Bvenuti%2Bsmiling.jpg')
 joe_venuti = Person(intro='the father of jazz violin', birthday=datetime(1903, 9, 16), deathday=datetime(1978, 8, 14),
                     active_start=datetime(1924, 1, 3), active_end=datetime(1978, 1, 1), color=color_jazz_age,
-                    size=Size.MEDIUM, title='Joe Venuti', image=joe_venuti_img)
+                    size=Size.MEDIUM, title='Joe Venuti', images=[joe_venuti_img])
 
-stringing_img = 'https://i.ytimg.com/vi/eEdGLoj0ILE/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-BIAC4AOKAgwIABABGEAgTihlMA8=&rs=AOn4CLBf08rJfQslQEd4G00I8-_J0qezwg'
-stringing_link = 'https://www.youtube.com/watch?v=eEdGLoj0ILE&ab_channel=cdbpdx'
+stringing_img = Image('https://i.ytimg.com/vi/eEdGLoj0ILE/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-BIAC4AOKAgwIABABGEAgTihlMA8=&rs=AOn4CLBf08rJfQslQEd4G00I8-_J0qezwg')
+stringing_link = Link('https://www.youtube.com/watch?v=eEdGLoj0ILE&ab_channel=cdbpdx', 'Youtube Link')
 stringing_desc = 'Their 1926 duet, “Stringing the Blues,” not only ' \
                  'showcases their deep rapport and the ease of their playing, but is also a ' \
                  'landmark in defining the role of guitar and violin in the jazz idiom ' \
@@ -774,9 +783,9 @@ stringing_desc = 'Their 1926 duet, “Stringing the Blues,” not only ' \
                  'progress in expanding the jazz vocabulary on their instruments. These ' \
                  'seminal recordings went a long way toward forging a chamber music style of jazz combo playing.'
 stringing = Landmark(size=Size.SMALL, color=color_jazz_age, title='Stringing the Blues', description=stringing_desc,
-                     link=stringing_link, date=datetime(1926, 11, 8), image=stringing_img)
+                     links=[stringing_link], date=datetime(1926, 11, 8), images=[stringing_img])
 
-whiteman_orchestra_img = 'https://syncopatedtimes.com/wp-content/uploads/2020/04/Paul-Whiteman-and-his-Orchestra.jpg'
+whiteman_orchestra_img = Image('https://syncopatedtimes.com/wp-content/uploads/2020/04/Paul-Whiteman-and-his-Orchestra.jpg')
 whiteman_orchestra_desc = 'Whiteman, who was originally a violinist, conducted a 40-piece U.S. Navy band in 1917–18' \
                           ' and then developed a hotel orchestra in California, which he took to New York City in 1920. ' \
                           'He hired the best white jazz players, but he allowed little room for improvisation in his' \
@@ -795,7 +804,7 @@ whiteman_orchestra_desc = 'Whiteman, who was originally a violinist, conducted a
                           'recorded with Paul Robeson and Billie Holiday, and hired Don Redman as an arranger in the ' \
                           '1930s and was generally held in high regards as a person by musicians both Black and White.'
 whiteman_orchestra = Landmark(size=Size.MEDIUM, title='Paul Whiteman Orchestra', color=color_jazz_age,
-                              description=whiteman_orchestra_desc, date=datetime(1920, 1, 4), image=whiteman_orchestra_img)
+                              description=whiteman_orchestra_desc, date=datetime(1920, 1, 4), images=[whiteman_orchestra_img])
 
 whiteman_poach = Landmark(size=Size.NODE, title='Whiteman hires most of Goldkette\'s better players',
                           date=datetime(1927, 1, 2), color=color_jazz_age)
@@ -879,10 +888,10 @@ james_p_johnson_desc = 'Johnson’s own music epitomized this approach; it repre
                        'prominent Chicago players. There may have been greater jazz musicians ' \
                        'than James P. Johnson, but few artists of his day sensed so clearly the latent ' \
                        'potential of African American music or worked so vigorously to bring it into reality.'
-james_p_johnson_img = 'https://syncopatedtimes.com/wp-content/uploads/2019/10/James-P-Johnson-1920s.jpg'
+james_p_johnson_img = Image('https://syncopatedtimes.com/wp-content/uploads/2019/10/James-P-Johnson-1920s.jpg')
 james_p_johnson = Person(size=Size.LARGE, title='James P Johnson', color=color_jazz_age,
                          birthday=datetime(1894, 2, 1), deathday=datetime(1955, 11, 12), active_start=datetime(1912, 1, 1),
-                         active_end=datetime(1955, 1, 1), description=james_p_johnson_desc, image=james_p_johnson_img)
+                         active_end=datetime(1955, 1, 1), description=james_p_johnson_desc, images=[james_p_johnson_img])
 
 cutting_contests_desc = 'Under the inspiration of Johnson and others, the world of stride piano ' \
                         'developed a macho, competitive ethos that has since come to permeate the ' \
@@ -905,28 +914,28 @@ cutting_contests = Landmark(size=Size.MEDIUM, title='cutting contests', descript
 
 fats_waller_desc = 'Yet Thomas “Fats” Waller did more than any of these players to bring the ' \
                    'Harlem style to the attention of the broader American public.'
-fats_waller_img = 'https://hips.hearstapps.com/hmg-prod/images/gettyimages-514974526-copy.jpg?resize=1200:*'
+fats_waller_img = Image('https://hips.hearstapps.com/hmg-prod/images/gettyimages-514974526-copy.jpg?resize=1200:*')
 fats_waller = Person(size=Size.LARGE, color=color_jazz_age, title='Thomas "Fats" Waller',
                      birthday=datetime(1904, 5, 21), deathday=datetime(1943, 12, 15),
                      active_start=datetime(1918, 3, 1), active_end=datetime(1943, 12, 15),
-                     description=fats_waller_desc, image=fats_waller_img)
+                     description=fats_waller_desc, images=[fats_waller_img])
 
-aint_misbehavin_img = 'https://i.ytimg.com/vi/WTUxw6ioyJU/hqdefault.jpg'
-aint_misbehavin_link = 'https://www.youtube.com/watch?v=o1TIHXBzFHU&ab_channel=JGCHistory'
+aint_misbehavin_img = Image('https://i.ytimg.com/vi/WTUxw6ioyJU/hqdefault.jpg')
+aint_misbehavin_link = Link('https://www.youtube.com/watch?v=o1TIHXBzFHU&ab_channel=JGCHistory', 'Youtube Link')
 aint_misbehavin = Landmark(size=Size.SMALL, date=datetime(1929, 7, 9), color=color_jazz_age, title="Ain't Misbehavin'",
-                           image=aint_misbehavin_img, link=aint_misbehavin_link)
+                           images=[aint_misbehavin_img], links=[aint_misbehavin_link])
 
-honeysuckle_img= 'https://i.ytimg.com/vi/H0VwiHDxRIw/maxresdefault.jpg'
+honeysuckle_img= Image('https://i.ytimg.com/vi/H0VwiHDxRIw/maxresdefault.jpg')
 honeysuckle = Landmark(size=Size.SMALL, title='Honeysuckle Rose', date=datetime(1929, 2, 2), color=color_jazz_age,
-                       link='https://www.youtube.com/watch?v=-F6n_12c9bo&ab_channel=DanielGraham', image=honeysuckle_img)
+                       links=[Link('https://www.youtube.com/watch?v=-F6n_12c9bo&ab_channel=DanielGraham', 'Youtube Link')], images=[honeysuckle_img])
 
 squeeze_me_desc = 'A 1925 jazz standard composed by Fats Waller. It was based on an old blues song called "The Boy' \
                   ' in the Boat". The lyrics were credited to publisher Clarence Williams, although Andy Razaf has ' \
                   'claimed to have actually written the lyrics.'
-squeeze_me_link = 'https://www.youtube.com/watch?v=cgCetEpAqcw&ab_channel=DominikFeri'
-squeeze_me_img = 'https://ia800600.us.archive.org/27/items/mbid-b73281a8-e794-4ed9-95d6-f0567ef51085/mbid-b73281a8-e794-4ed9-95d6-f0567ef51085-35811676337.jpg'
+squeeze_me_link = Link('https://www.youtube.com/watch?v=cgCetEpAqcw&ab_channel=DominikFeri', 'Youtube Link')
+squeeze_me_img = Image('https://ia800600.us.archive.org/27/items/mbid-b73281a8-e794-4ed9-95d6-f0567ef51085/mbid-b73281a8-e794-4ed9-95d6-f0567ef51085-35811676337.jpg')
 squeeze_me = Landmark(size=Size.SMALL, date=datetime(1925, 4, 4), title='Squeeze Me', color=color_jazz_age,
-                      link=squeeze_me_link, description=squeeze_me_desc, image=squeeze_me_img)
+                      links=[squeeze_me_link], description=squeeze_me_desc, images=[squeeze_me_img])
 
 boogie_woogie_desc = 'A genre of blues music that became popular during the late 1920s, but ' \
                      'already developed in African-American communities since the 1870s. This ' \
@@ -943,7 +952,7 @@ boogie_woogie_desc = 'A genre of blues music that became popular during the late
 boogie_woogie = Landmark(size=Size.SMALL, title='Boogie-woogie', color=color_jazz_age, date=datetime(1925, 5, 1),
                          display_date=False, description=boogie_woogie_desc)
 
-art_tatum_img = 'https://media.npr.org/assets/img/2012/01/31/art-tatum_vert-88dab16cc37c5e7c479ff7e39d57ae98a99d7a01-s1100-c50.jpg'
+art_tatum_img = Image('https://media.npr.org/assets/img/2012/01/31/art-tatum_vert-88dab16cc37c5e7c479ff7e39d57ae98a99d7a01-s1100-c50.jpg')
 art_tatum_desc = 'Historians of early twentieth-century piano styles—Harlem stride, boogie-woogie, ' \
                  'and other strands of jazz and popular keyboard music—face their greatest' \
                  ' challenge in trying to place the genrecrossing ' \
@@ -971,7 +980,7 @@ art_tatum_desc = 'Historians of early twentieth-century piano styles—Harlem st
                  ' still sits in probate, waiting for a new generation of pianists to lay claim to its many riches.'
 art_tatum = Person(size=Size.MEDIUM, birthday=datetime(1909, 10, 13), deathday=datetime(1956, 11, 5),
                    active_start=datetime(1925, 6, 6), active_end=datetime(1956, 10, 10),
-                   title='Art Tatum', image=art_tatum_img, color=color_jazz_age, description=art_tatum_desc)
+                   title='Art Tatum', images=[art_tatum_img], color=color_jazz_age, description=art_tatum_desc)
 
 big_bands_desc = 'The emergence of the big band idiom, with its subtle interweaving of ' \
                  'four sections— saxophone, trumpet, trombone, and rhythm—may seem, ' \
@@ -1011,11 +1020,11 @@ fletcher_henderson_desc = 'Fletcher Henderson, who helped define the emerging ja
                           'the Northeast that set the context for his dramatic reconstruction of the ' \
                           'American jazz orchestra. In truth, by both temperament and training, ' \
                           'Henderson was an unlikely jazz innovator.'
-fletcher_henderson_img = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Fletcher_Henderson_%281943_publicity_photo%29.jpg/500px-Fletcher_Henderson_%281943_publicity_photo%29.jpg'
+fletcher_henderson_img = Image('https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Fletcher_Henderson_%281943_publicity_photo%29.jpg/500px-Fletcher_Henderson_%281943_publicity_photo%29.jpg')
 fletcher_henderson = Person(size=Size.MEDIUM, title='Fletcher Henderson', color=color_jazz_age,
                             birthday=datetime(1897, 12, 18), deathday=datetime(1952, 12, 29),
                             active_start=datetime(1921, 7, 7), active_end=datetime(1950, 2, 2),
-                            description=fletcher_henderson_desc, image=fletcher_henderson_img)
+                            description=fletcher_henderson_desc, images=[fletcher_henderson_img])
 
 fletcher_orchestra_desc = 'When Harry Pace left the company to start Black Swan Records, he took Henderson ' \
                           'with him to be musical director, a job which lasted from 1921 until 1923....' \
@@ -1056,8 +1065,8 @@ fletcher_orchestra_desc = 'When Harry Pace left the company to start Black Swan 
                           'teach—and, equally, how much the saxophonist still had to learn. In this ' \
                           'setting, Hawkins gradually softened the rough edges of his phrasing and ' \
                           'smoothed out the rhythmic flow of his playing.'
-fletcher_orchestra_img = 'https://upload.wikimedia.org/wikipedia/commons/9/9d/FletcherHendersonOrchestra1925.jpg'
-fletcher_orchestra = Landmark(size=Size.MEDIUM, color=color_jazz_age, image=fletcher_orchestra_img,
+fletcher_orchestra_img = Image('https://upload.wikimedia.org/wikipedia/commons/9/9d/FletcherHendersonOrchestra1925.jpg')
+fletcher_orchestra = Landmark(size=Size.MEDIUM, color=color_jazz_age, images=[fletcher_orchestra_img],
                               display_date=False, date=datetime(1923, 1, 4), title='Fletcher Henderson Orchestra')
 
 fletcher_hawkins = Landmark(size=Size.NODE, title='Hawkins starts playing with Henderson\'s orchestra',
@@ -1094,32 +1103,32 @@ coleman_hawkins_desc = 'Hawkins learned piano at age five and took up cello two 
                        'clarinet as an important jazz solo voice. Years later, many devotees of New ' \
                        'Orleans style would grumble that the death knell for “pure” jazz was ' \
                        'sounded when the saxophonists took over the music.'
-coleman_hawkins_img = 'https://cdn.allsolos.com/images/soloist/202.jpg'
+coleman_hawkins_img = Image('https://cdn.allsolos.com/images/soloist/202.jpg')
 coleman_hawkins = Person(size=Size.MEDIUM, color=color_jazz_age, title='Coleman Hawkins',
                          birthday=datetime(1904, 11, 21), deathday=datetime(1969, 5, 19),
-                         active_start=datetime(1921, 5, 5), active_end=datetime(1967, 5, 19), image=coleman_hawkins_img)
+                         active_start=datetime(1921, 5, 5), active_end=datetime(1967, 5, 19), images=[coleman_hawkins_img])
 
 fletcher_armstrong = Landmark(size=Size.NODE, title='Armstrong starts playing with Henderson\'s orchestra',
                               color=color_jazz_age, date=datetime(1924, 10, 13))
 
-money_blues_img = 'https://i.ytimg.com/vi/tW0EJVHp3CU/maxresdefault.jpg'
-money_blues_link = 'https://www.youtube.com/watch?v=tW0EJVHp3CU&ab_channel=AtticusJazz'
-money_blues = Landmark(size=Size.SMALL, date=datetime(1925, 5, 12), image=money_blues_img, link=money_blues_link,
+money_blues_img = Image('https://i.ytimg.com/vi/tW0EJVHp3CU/maxresdefault.jpg')
+money_blues_link = Link('https://www.youtube.com/watch?v=tW0EJVHp3CU&ab_channel=AtticusJazz', 'Youtube Link')
+money_blues = Landmark(size=Size.SMALL, date=datetime(1925, 5, 12), images=[money_blues_img], links=[money_blues_link],
                        color=color_jazz_age, title='Money Blues')
 
-go_long_mule_link = 'https://www.youtube.com/watch?v=bWQGI9MjDPU&ab_channel=HeinzBecker'
-go_long_mule_img = 'https://i.ytimg.com/vi/2nBN8-BBFOc/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AGUA4AC0AWKAgwIABABGGUgYChVMA8=&rs=AOn4CLCC8Wkm5ToKfWrtDonddLpUpF8a6Q'
+go_long_mule_link = Link('https://www.youtube.com/watch?v=bWQGI9MjDPU&ab_channel=HeinzBecker')
+go_long_mule_img = Image('https://i.ytimg.com/vi/2nBN8-BBFOc/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AGUA4AC0AWKAgwIABABGGUgYChVMA8=&rs=AOn4CLCC8Wkm5ToKfWrtDonddLpUpF8a6Q')
 go_long_mule = Landmark(size=Size.SMALL, color=color_jazz_age, title='Go \'Long Mule',
-                        date=datetime(1924, 10, 7), link=go_long_mule_link, image=go_long_mule_img)
+                        date=datetime(1924, 10, 7), links=[go_long_mule_link], images=[go_long_mule_img])
 
 redman_leaves = Landmark(size=Size.NODE, date=datetime(1927, 3, 3), title='Redman leaves the Henderson Orchestra',
                          color=color_jazz_age)
 
-duke_ellington_img = 'https://www.kennedy-center.org/globalassets/education/resources-for-educators/classroom-resources/artsedge/artists/ellington-duke.jpg'
+duke_ellington_img = Image('https://www.kennedy-center.org/globalassets/education/resources-for-educators/classroom-resources/artsedge/artists/ellington-duke.jpg')
 duke_ellington = Person(size=Size.LARGE, title='Duke Ellington', color=color_jazz_age,
                         birthday=datetime(1899, 4, 29), deathday=datetime(1974, 5, 24),
                         active_start=datetime(1917, 2, 2), active_end=datetime(1974, 5, 24),
-                        image=duke_ellington_img)
+                        images=[duke_ellington_img])
 
 duke_cotton_orchestra_desc = 'Although Ellington had previously expanded his group for recordings, ' \
                              'the Club Kentucky engagement had supported only a sextet. Now required ' \
@@ -1176,20 +1185,22 @@ swing_era_desc = 'The onset of the Great Depression had a chilling effect on the
 swing_era_intro = 'There was a time, from 1933–1947, when teenagers and young adults danced ' \
                   'to jazz-orientated bands. When jazz orchestras dominated pop charts and when' \
                   ' influential clarinettists were household names. This was the swing era.'
-swing_era_img = 'https://4.bp.blogspot.com/-v1pd5GIwLUI/Wk8nN6DOPRI/AAAAAAABMzI/gotamcaSuAkSiMsRZEwoYoacQ_GzlHoNgCLcBGAs/s1600/Vintage%2BLindy%2BHop%2B%25281%2529.jpg'
+prohibition_img = Image('https://cdn.thecollector.com/wp-content/uploads/2022/03/frank-scherschel-men-women-celebrate-end-prohibition-1933.jpg?width=995&quality=55')
+swing_era_img = Image('https://4.bp.blogspot.com/-v1pd5GIwLUI/Wk8nN6DOPRI/AAAAAAABMzI/gotamcaSuAkSiMsRZEwoYoacQ_GzlHoNgCLcBGAs/s1600/Vintage%2BLindy%2BHop%2B%25281%2529.jpg')
+swing_ellington_img=Image('https://www.kaufmanmusiccenter.org/images/uploads/events/_medium/Duke_Ellington_1200x1200.jpg', 'Duke Ellington')
 swing_era = Era(title='The Swing Era', active_start=datetime(1933, 1, 1), end_year=datetime(1947, 1, 1),
-                image=swing_era_img, color=color_swing_era, description=swing_era_desc, intro=swing_era_intro)
+                images=[swing_era_img, prohibition_img, swing_ellington_img], color=color_swing_era, description=swing_era_desc, intro=swing_era_intro)
 
-benny_goodman_img = 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Benny_Goodman_1942.jpg/500px-Benny_Goodman_1942.jpg'
+benny_goodman_img = Image('https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Benny_Goodman_1942.jpg/500px-Benny_Goodman_1942.jpg')
 benny_goodman = Person(size=Size.LARGE, color=color_swing_era, title='Benny Goodman',
                        birthday=datetime(1909, 5, 30), deathday=datetime(1986, 6, 13),
                        active_start=datetime(1926, 2, 2), active_end=datetime(1986, 6, 13),
-                       image=benny_goodman_img, intro='The King of Swing')
+                       images=[benny_goodman_img], intro='The King of Swing')
 
-dorsey_marie_link = 'https://www.youtube.com/watch?v=XgR0g6WKvgk&ab_channel=AlexSuzano'
-dorsey_marie_img = 'https://i.ytimg.com/vi/hDuZW6ygrFI/hqdefault.jpg'
+dorsey_marie_link = Link('https://www.youtube.com/watch?v=XgR0g6WKvgk&ab_channel=AlexSuzano', 'Youtube Link')
+dorsey_marie_img = Image('https://i.ytimg.com/vi/hDuZW6ygrFI/hqdefault.jpg')
 dorsey_marie = Landmark(size=Size.SMALL, title='Marie', date=datetime(1937, 1, 29), color=color_swing_era,
-                        image=dorsey_marie_img, link=dorsey_marie_link)
+                        images=[dorsey_marie_img], links=[dorsey_marie_link])
 
 tommy_dorsey_orchestra = Landmark(size=Size.MEDIUM, title='The Tommy Dorsey Orchestra', color=color_swing_era,
                                   date=datetime(1935, 1, 1))
@@ -1431,7 +1442,9 @@ landmarks = [
     # gatsby, prohibition
 ]
 
-
+nola_jazz_landmarks = [new_orleans_jazz, buddy_bolden, storyville, jelly_roll,
+                       king_oliver, sidney_bechet, diaspora, kid_ory, livery_stable_blues,
+                       louis_armstrong]
 
 # Los Angeles landmark
 

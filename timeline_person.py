@@ -5,9 +5,9 @@ import datetime
 class Person(Landmark):
     def __init__(self, size, title='',
                  active_start=datetime.datetime(1900, 1, 1), active_end=datetime.datetime(2100, 1, 1),
-                 birthday=datetime.datetime(1900, 1, 1), deathday=datetime.datetime(2100, 1, 1), image=0,
+                 birthday=datetime.datetime(1900, 1, 1), deathday=datetime.datetime(2100, 1, 1), images=None,
                  display_date=True, color='#888888', description=False, intro=False):
-        super().__init__(size, title, active_start, display_date, image, color=color, description=description,
+        super().__init__(size, title, active_start, display_date, images, color=color, description=description,
                          intro=intro)
         self.active_end = active_end
         self.birthday = birthday

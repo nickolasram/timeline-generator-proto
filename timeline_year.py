@@ -3,7 +3,7 @@ import random
 
 class Year:
     def __init__(self, placeholder=False, landmarks=[],
-                 year=0, end_year=0, span=False, width=0):
+                 year=0, end_year=0, span=False):
         self.landmarks = []
         self.final_list = []
         self.default_cell = [1, 3, 5, 7]
@@ -16,7 +16,6 @@ class Year:
         self.year = year
         self.end_year = end_year
         self.span = span
-        self.width = width
         self.real_year = self.year
         self.real_end_year = 0
         self.percentage_across = 0

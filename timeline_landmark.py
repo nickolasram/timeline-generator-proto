@@ -20,7 +20,6 @@ class Relationship:
         self.target_id = other.id
         self.context = context
 
-
     def __eq__(self, other):
         return self.other.date == other.other.date
 
@@ -40,8 +39,8 @@ class Relationship_Group:
 
 
 class Landmark:
-    def __init__(self, size, title='', date=datetime.datetime(1900, 1, 1), display_date=True, image=None, color='#888888',
-                 description=False, intro=False, link=None):
+    def __init__(self, size, title='', date=datetime.datetime(1900, 1, 1), display_date=True, images=None, color='#888888',
+                 description=False, intro=False, links=False):
         self.title = title
         self.x_coordinate = 0
         self.y_coordinate = 0
@@ -57,7 +56,7 @@ class Landmark:
         self.landmark_end_date = False
         self.z_score = 0
         self.real_date = self.date
-        self.image = image
+        self.images = images
         self.color = color
         # for general landmarks that don't necessarily have a date
         self.display_date = display_date
@@ -66,8 +65,11 @@ class Landmark:
         self.person = False
         self.intro = intro
         self.era = False
-        self.link = link
+        self.links = links
         self.key_points = False
+        self.presentations = []
+        self.sources = False
+        self.files = False
 
     def __str__(self):
         return f"Landmark for {self.real_date}. {self.title}"
@@ -172,6 +174,7 @@ class Landmark:
                         self.p_rel_groups[-1].relationships.append(relationship)
                         prg_index += 1
 
+
     def find_point_on_circle(self, angle, future):
         radians = angle * (math.pi / 180)
         x = math.sin(radians)
@@ -235,20 +238,15 @@ class Landmark:
                 'textAnchor': 'start' if future else 'end',
                 'targetId': relationship.target_id,
                 'date': relationship.other.date.year,
-                'context': relationship.context
+                'context': relationship.context,
+                'color': relationship.other.color,
+                'displayDate': relationship.other.display_date
             }
             relationship_list.append(relationship_dict)
         return relationship_list
 
     def to_dict(self):
         relationship_groups = []
-        for r_g in self.f_rel_groups:
-            relationship_groups.append({
-                'startPoint': self.find_point_on_circle(r_g.angle, True),
-                'endPoint': self.find_point_on_circle(r_g.end_angle, True),
-                'relationships': self.relationships_to_dict(r_g, True),
-                'future': True
-            })
         for r_g in self.p_rel_groups:
             relationship_groups.append({
                 'startPoint': self.find_point_on_circle(r_g.angle, False),
@@ -256,6 +254,25 @@ class Landmark:
                 'relationships': self.relationships_to_dict(r_g, False),
                 'future': False
             })
+        for r_g in self.f_rel_groups:
+            relationship_groups.append({
+                'startPoint': self.find_point_on_circle(r_g.angle, True),
+                'endPoint': self.find_point_on_circle(r_g.end_angle, True),
+                'relationships': self.relationships_to_dict(r_g, True),
+                'future': True
+            })
+        relative_time_position = [-1, -1]
+        passed = False
+        if len(relationship_groups)>0:
+            for i in range(len(relationship_groups)):
+                if passed:
+                    break
+                for j in range(len(relationship_groups[i]['relationships'])):
+                    if (relationship_groups[i]['relationships'][j]['date'] >= self.real_date.year) and not passed:
+                        relative_time_position = [i, j]
+                        passed = True
+                        break
+
         basic_dict = {
             'row': f"row-start-{self.y_coordinate} row-end-{self.y_coordinate+self.size.value['y']}",
             'column': f"col-start-{self.x_coordinate} col-end-{self.x_coordinate+self.size.value['x']}",
@@ -271,16 +288,29 @@ class Landmark:
             'id': self.id,
             'person': self.person,
             'intro': self.intro,
-            'image': self.image,
-            'bgImage': self.image,
-            'link': self.link,
+            'images': self.images,
+            'bgImage': self.images,
+            'links': self.links,
             'color': self.color,
-            'keyPoints': self.key_points
+            'keyPoints': self.key_points,
+            'presentations': self.presentations,
+            'relativeTimePosition': relative_time_position,
+            'endDate': self.landmark_end_date,
+            'files': self.files
         }
-        if self.image:
-            basic_dict["bgImage"] = f"bg-[url({self.image})]"
+        if self.files:
+            basic_dict["files"] = [x.to_dict() for x in self.files]
+        if self.links:
+            basic_dict["links"] = [x.to_dict() for x in self.links]
+        if self.landmark_end_date:
+            basic_dict["endDate"] = self.landmark_end_date.year
+        if self.images:
+            basic_dict["images"] = [x.to_dict() for x in self.images]
+            basic_dict["bgImage"] = f"bg-[url({self.images[0].image})]"
         if self.description:
             basic_dict["description"] = self.description
+        if self.sources:
+            basic_dict["sources"] = self.sources
         if len(relationship_groups) > 0:
             basic_dict["relationshipGroups"] = relationship_groups
         return basic_dict    
