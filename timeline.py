@@ -1,4 +1,4 @@
-from timeline_landmark import Landmark
+from timeline_landmark import Landmark, Size
 from timeline_presentation import Presentation
 from bisect import bisect_left, bisect_right
 from datetime import datetime
@@ -17,6 +17,92 @@ class YearIndex:
 
     def __lt__(self, other):
         return self.percentage < other.percentage
+    
+class Thread:
+    def __init__(self, landmark: Landmark):
+        self.landmark = landmark
+        self.id = landmark.id
+        self.x = landmark.x_coordinate
+        self.y = landmark.y_coordinate
+    
+
+    def generate_dict(self):
+        base_x = self.landmark.x_coordinate + (math.floor(self.landmark.size.value['x']/2))
+        base_y = self.landmark.y_coordinate + (math.floor(self.landmark.size.value['x']/2))
+        min_x = base_x
+        min_y = base_y
+        max_x = base_x
+        max_y = base_y
+        related = self.landmark.relationships
+        for relationship in related:
+            nudge = math.floor(relationship.other.size.value['x']/2)
+            related_x = relationship.other.x_coordinate + nudge
+            related_y = relationship.other.y_coordinate + nudge
+            if related_x < min_x:
+                min_x = related_x
+            if related_x > max_x:
+                max_x = related_x
+            if related_y < min_y:
+                min_y = related_y
+            if related_y > max_y:
+                max_y = related_y
+        vb_width = (max_x - min_x + 1)*10
+        vb_height = (max_y - min_y + 1)*10
+        x_nudge = 1 - min_x
+        y_nudge = 1 - min_y
+        if min_x == base_x:
+            line_start = f'{(min_x + x_nudge) * 10 - 5} {(base_y + y_nudge) * 10 - 5}'
+        else:
+            line_start = f'{(min_x + x_nudge) * 10 + 5} {(base_y + y_nudge) * 10 - 5}'
+        if max_x == base_x:
+            line_end = f'{(max_x + x_nudge) * 10 - 5} {(base_y + y_nudge) * 10 - 5}'
+        else:
+            line_end = f'{(max_x + x_nudge) * 10 - 15} {(base_y + y_nudge) * 10 - 5}'
+        # landmark_timeline = f'M{line_start}L{line_end}'
+
+        # def defineCurve(provided_x, provided_y):
+        #     if provided_y > base_y:
+        #         curve_modifier = 40
+        #         bezier_modifier = 10
+        #     else:
+        #         curve_modifier = -20
+        #         bezier_modifier = 0
+        #     if provided_x > base_x:
+        #         curve_start = f'{(provided_x + x_nudge) * 10 - 5} {(base_y + y_nudge) * 10 - 5}'
+        #     else:
+        #         curve_start = f'{(provided_x + x_nudge) * 10 + 15} {(base_y + y_nudge) * 10 - 5}'
+        #     curve_end_bezier_x = (provided_x + x_nudge)*10 + 5
+        #     curve_start_bezier_x = curve_end_bezier_x
+        #     curve_end_x = curve_end_bezier_x
+        #     curve_end_y = provided_y * 10
+        #     curve_start_bezier_y = base_y * 10 - 20 + bezier_modifier
+        #     curve_end_bezier_y = curve_start_bezier_y + curve_modifier - 10
+        #     return f'M{curve_start}C{curve_start_bezier_x} {curve_start_bezier_y} {curve_end_bezier_x} {curve_end_bezier_y} {curve_end_x} {curve_end_y}'
+        landmark_timeline = ''
+        for relationship in self.landmark.relationships:
+        #     landmark_timeline += defineCurve(relationship.other.x_coordinate, relationship.other.y_coordinate)
+            other_x_center = relationship.other.x_coordinate + (math.floor(relationship.other.size.value['x']/2))
+            other_y_center = relationship.other.y_coordinate + (math.floor(relationship.other.size.value['x']/2))
+            ll = 0
+            if self.landmark.size.value['x'] == 3:
+                ll = 6
+            if self.landmark.size.value['x'] == 5:
+                ll = 14
+            if self.landmark.size.value['x'] == 7:
+                ll = 21
+            if other_x_center < base_x:
+                ll = -6
+            line_start = f'{(base_x + x_nudge) * 10 +ll} {(base_y + y_nudge) * 10 - 5}'
+            line_end = f'{(other_x_center + x_nudge) * 10 - 5} {(other_y_center + y_nudge) * 10 - 5}'    
+            landmark_timeline += f'M{line_start}L{line_end}'
+        thread_as_dict = {
+            'id': self.id,
+            'className': f'col-start-{min_x} row-start-{min_y} col-end-{max_x+1} row-end-{max_y+1}',
+            'viewbox': f'0 0 {vb_width} {vb_height}',
+            'path': landmark_timeline,
+            'color': self.landmark.color
+        }
+        return thread_as_dict
 
 
 class Timeline:
@@ -210,7 +296,7 @@ class Timeline:
             self.timeline = [only_year]
         else:
             first_landmark: Landmark = self.landmarks[0]
-            first_landmark.group_relationships(first_landmark.size.value['x'])
+            # first_landmark.group_relationships(first_landmark.size.value['x'])
             first_year = Year(year=first_landmark.date.year, landmarks=[first_landmark])
             first_year.real_year = first_landmark.real_date.year
             first_year.x_coordinate = self.column_tracker
@@ -218,7 +304,7 @@ class Timeline:
             timeline_index = 0
             for i in range(len(self.landmarks[1:])):
                 landmark = self.landmarks[1:][i]
-                landmark.group_relationships(landmark.size.value['x'])
+                # landmark.group_relationships(landmark.size.value['x'])
                 distance = (landmark.date.year - self.timeline[timeline_index].year)
                 if distance == 0:
                     self.timeline[timeline_index].landmarks.append(landmark)
@@ -276,9 +362,13 @@ class Timeline:
                 'note': self.note,
                 'authors': self.authors,
                 'id': self.id,
-                'landmarkCount': len(self.landmarks)
+                'landmarkCount': len(self.landmarks),
+                'columns': self.timeline[-1].rightmost_column + self.column_tracker,
+                'svgColumns': f'col-end-{self.timeline[-1].rightmost_column + self.column_tracker + 1}'
             },
             'landmarks': [],
+            'circles': [],
+            'threads': [],
             'years': [],
             'yearsIndex': {},
             'presentations': self.presentations,
@@ -291,6 +381,23 @@ class Timeline:
         timeline_dict['presentationsSummary'].append(default_presentation_dict['meta'])
         for landmark in self.landmarks:
             timeline_dict['landmarks'].append(landmark.to_dict())
+            if landmark.size is not Size.ERA:
+                center_x = (landmark.x_coordinate + math.floor(landmark.size.value['x']/2)) * 10
+                center_y = ((landmark.y_coordinate + math.floor(landmark.size.value['x']/2)) * 10) - 5
+                ll = 0
+                if landmark.size.value['x'] == 3:
+                    ll = 6
+                if landmark.size.value['x'] == 5:
+                    ll = 14
+                if landmark.size.value['x'] == 7:
+                    ll = 21
+                right_circle_x = center_x + ll + 1
+                left_circle_x = center_x - ll - 11
+                timeline_dict['circles'].append({'xCoordinate': right_circle_x, 'yCoordinate': center_y})
+                timeline_dict['circles'].append({'xCoordinate': left_circle_x, 'yCoordinate': center_y})
+            if len(landmark.relationships) > 0:
+                new_thread = Thread(landmark)
+                timeline_dict['threads'].append(new_thread.generate_dict())
         timeline_distance = self.timeline[-1].x_coordinate + self.timeline[-1].rightmost_column
         years_percentages = []
         for year in self.timeline:
@@ -313,6 +420,6 @@ class Timeline:
         final_dict = {}
         for timeline in timelines:
             final_dict[timeline.id] = timeline.to_dict()
-        with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
-        # with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+        # with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
+        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
             json.dump(final_dict, outfile, indent=4)
