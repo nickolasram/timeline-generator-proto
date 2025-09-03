@@ -19,12 +19,19 @@ class YearIndex:
         return self.percentage < other.percentage
     
 class Thread:
-    def __init__(self, landmark: Landmark):
-        self.landmark = landmark
-        self.id = landmark.id
-        self.x = landmark.x_coordinate
-        self.y = landmark.y_coordinate
-    
+    def __init__(self, landmark_a: Landmark, landmark_b: Landmark):
+        self.landmark = landmark_a
+        self.id = landmark_a.id
+        self.x = landmark_a.x_coordinate
+        self.y = landmark_a.y_coordinate
+        self.terminal_a = None
+        self.terminal_b = None
+
+    # For landmark in timeline
+    # For relationship in timeline.relationships
+    # Go through list of threads
+    # If thread not in threads, add thread
+
 
     def generate_dict(self):
         base_x = self.landmark.x_coordinate + (math.floor(self.landmark.size.value['x']/2))
@@ -93,7 +100,7 @@ class Thread:
             if other_x_center < base_x:
                 ll = -6
             line_start = f'{(base_x + x_nudge) * 10 +ll} {(base_y + y_nudge) * 10 - 5}'
-            line_end = f'{(other_x_center + x_nudge) * 10 - 5} {(other_y_center + y_nudge) * 10 - 5}'    
+            line_end = f'{(other_x_center + x_nudge) * 10 - 5} {(other_y_center + y_nudge) * 10 - 5}'
             landmark_timeline += f'M{line_start}L{line_end}'
         thread_as_dict = {
             'id': self.id,
@@ -348,11 +355,35 @@ class Timeline:
                         timeline_index += 4 + (z_score_difference*2)
                 if i == len(self.landmarks[1:])-1:
                     self.timeline[timeline_index].generate_year_grid()
-    
+
     def set_landmarks(self, landmarks):
         for landmark in landmarks:
             self.add_landmark(landmark)
         self.generate_timeline()
+
+    def get_right_point(self, landmark: Landmark):
+        center_x = (landmark.x_coordinate + math.floor(landmark.size.value['x'] / 2)) * 10
+        center_y = ((landmark.y_coordinate + math.floor(landmark.size.value['x'] / 2)) * 10) - 5
+        adjustment = 0
+        if landmark.size.value['x'] == 3:
+            adjustment = 7
+        if landmark.size.value['x'] == 5:
+            adjustment = 15
+        if landmark.size.value['x'] == 7:
+            adjustment = 22
+        return center_x + adjustment, center_y
+
+    def get_left_point(self, landmark: Landmark):
+        center_x = (landmark.x_coordinate + math.floor(landmark.size.value['x'] / 2)) * 10
+        center_y = ((landmark.y_coordinate + math.floor(landmark.size.value['x'] / 2)) * 10) - 5
+        adjustment = 0
+        if landmark.size.value['x'] == 3:
+            adjustment = 18
+        if landmark.size.value['x'] == 5:
+            adjustment = 26
+        if landmark.size.value['x'] == 7:
+            adjustment = 33
+        return center_x - adjustment, center_y
 
     def to_dict(self):
         timeline_dict = {
@@ -395,9 +426,35 @@ class Timeline:
                 left_circle_x = center_x - ll - 11
                 timeline_dict['circles'].append({'xCoordinate': right_circle_x, 'yCoordinate': center_y})
                 timeline_dict['circles'].append({'xCoordinate': left_circle_x, 'yCoordinate': center_y})
-            if len(landmark.relationships) > 0:
-                new_thread = Thread(landmark)
-                timeline_dict['threads'].append(new_thread.generate_dict())
+                if len(landmark.relationships) > 0:
+                    for relationship in landmark.relationships:
+                        duplicate = False
+                        for entry in timeline_dict['threads']:
+                            if (landmark.id == entry['terminalA']) or (landmark.id == entry['terminalB']):
+                                if (relationship.target_id == entry['terminalA']) or (relationship.target_id == entry['terminalB']):
+                                    duplicate = True
+                                    break
+                        if duplicate:
+                            break
+                        if landmark.x_coordinate < relationship.other.x_coordinate:
+                            start_point = self.get_right_point(landmark)
+                            end_point = self.get_left_point(relationship.other)
+                        else:
+                            start_point = self.get_right_point(relationship.other)
+                            end_point = self.get_left_point(landmark)
+                        new_thread = {
+                            'terminalA': landmark.id,
+                            'terminalB': relationship.target_id,
+                            'd': f'M{start_point[0]} {start_point[1]}L{end_point[0]} {end_point[1]}',
+                            'title': relationship.title,
+                            'context': relationship.context,
+                            'colorA': landmark.color,
+                            'colorB': relationship.other.color,
+                            'markerA': 'marker' + landmark.id + relationship.target_id,
+                            'markerB': 'marker' + relationship.target_id+ landmark.id,
+                            'gradientId': landmark.id + relationship.target_id
+                        }
+                        timeline_dict['threads'].append(new_thread)
         timeline_distance = self.timeline[-1].x_coordinate + self.timeline[-1].rightmost_column
         years_percentages = []
         for year in self.timeline:
@@ -420,6 +477,6 @@ class Timeline:
         final_dict = {}
         for timeline in timelines:
             final_dict[timeline.id] = timeline.to_dict()
-        # with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
-        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+        with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
+        # with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
             json.dump(final_dict, outfile, indent=4)
