@@ -8,6 +8,7 @@ import numpy
 from timeline_year import Year
 import json
 import uuid
+import random
 
 
 class YearIndex:
@@ -398,7 +399,6 @@ class Timeline:
                 'svgColumns': f'col-end-{self.timeline[-1].rightmost_column + self.column_tracker + 1}'
             },
             'landmarks': [],
-            'circles': [],
             'threads': [],
             'years': [],
             'yearsIndex': {},
@@ -413,19 +413,6 @@ class Timeline:
         for landmark in self.landmarks:
             timeline_dict['landmarks'].append(landmark.to_dict())
             if landmark.size is not Size.ERA:
-                center_x = (landmark.x_coordinate + math.floor(landmark.size.value['x']/2)) * 10
-                center_y = ((landmark.y_coordinate + math.floor(landmark.size.value['x']/2)) * 10) - 5
-                ll = 0
-                if landmark.size.value['x'] == 3:
-                    ll = 6
-                if landmark.size.value['x'] == 5:
-                    ll = 14
-                if landmark.size.value['x'] == 7:
-                    ll = 21
-                right_circle_x = center_x + ll + 1
-                left_circle_x = center_x - ll - 11
-                timeline_dict['circles'].append({'xCoordinate': right_circle_x, 'yCoordinate': center_y})
-                timeline_dict['circles'].append({'xCoordinate': left_circle_x, 'yCoordinate': center_y})
                 if len(landmark.relationships) > 0:
                     for relationship in landmark.relationships:
                         duplicate = False
@@ -442,18 +429,109 @@ class Timeline:
                         else:
                             start_point = self.get_right_point(relationship.other)
                             end_point = self.get_left_point(landmark)
-                        new_thread = {
-                            'terminalA': landmark.id,
-                            'terminalB': relationship.target_id,
-                            'd': f'M{start_point[0]} {start_point[1]}L{end_point[0]} {end_point[1]}',
-                            'title': relationship.title,
-                            'context': relationship.context,
-                            'colorA': landmark.color,
-                            'colorB': relationship.other.color,
-                            'markerA': 'marker' + landmark.id + relationship.target_id,
-                            'markerB': 'marker' + relationship.target_id+ landmark.id,
-                            'gradientId': landmark.id + relationship.target_id
+                        # if landmark.x_coordinate < relationship.other.x_coordinate:
+                        #     title_a = landmark.title
+                        #     title_b = relationship.title
+                        # else:
+                        #     title_b = landmark.title
+                        #     title_a = relationship.title
+                        if landmark.x_coordinate < relationship.other.x_coordinate:
+                            left_terminal = landmark
+                            right_terminal = relationship.other
+                        else:
+                            left_terminal = relationship.other
+                            right_terminal = landmark
+                        left_nudge = 0
+                        # if left_terminal.size.value['x'] == 1:
+                        #     left_nudge = .5
+                        if left_terminal.size.value['x'] == 3:
+                            left_nudge = .5
+                        if left_terminal.size.value['x'] == 5:
+                            left_nudge = 1
+                        if left_terminal.size.value['x'] == 7:
+                            left_nudge = 1.5
+                        right_nudge = 0
+                        # if right_terminal.size.value['x'] == 1:
+                        #     right_nudge = .5
+                        if right_terminal.size.value['x'] == 3:
+                            right_nudge = .5
+                        if right_terminal.size.value['x'] == 5:
+                            right_nudge = 1
+                        if right_terminal.size.value['x'] == 7:
+                            right_nudge = 1.5
+                        left_radius = 0
+                        if left_terminal.size.value['x'] == 1:
+                            left_radius = 3
+                        if left_terminal.size.value['x'] == 3:
+                            left_radius = 8
+                        if left_terminal.size.value['x'] == 5:
+                            left_radius = 13
+                        if left_terminal.size.value['x'] == 7:
+                            left_radius = 18
+                        right_radius = 0
+                        if right_terminal.size.value['x'] == 1:
+                            right_radius = 3
+                        if right_terminal.size.value['x'] == 3:
+                            right_radius = 8
+                        if right_terminal.size.value['x'] == 5:
+                            right_radius = 13
+                        if right_terminal.size.value['x'] == 7:
+                            right_radius = 18
+                        left_anchor_point = (start_point[0]+left_nudge, start_point[1])
+                        right_anchor_point = (end_point[0]-right_nudge, end_point[1])
+                        denominators = [-10,-11,-12,-13,-14,-15,10,11,12,13,14,15]
+                        left_denominator = denominators[random.randint(0,len(denominators)-1)]
+                        right_denominator = denominators[random.randint(0,len(denominators)-1)]
+                        left_x_nudge = random.randint(-1,1) # probably needs to be scaled
+                        right_x_nudge = random.randint(-1,1) # probably needs to be scaled
+                        left_y_nudge = random.randint(-1,1) # probably needs to be scaled
+                        right_y_nudge = random.randint(-1,1) # probably needs to be scaled
+                        left_particle_x = left_anchor_point[0] + (math.floor(math.cos(math.pi/left_denominator) * left_radius) / 2) #+ left_x_nudge
+                        # right_particle_x = (2*right_anchor_point[0])-(math.floor(math.cos(math.pi/right_denominator)) * right_radius) #+ right_x_nudge   
+                        right_particle_x = right_anchor_point[0] - (math.floor(math.cos(math.pi/right_denominator) * right_radius) / 2)
+                        left_particle_y = left_anchor_point[1] + (math.floor(math.sin(math.pi/left_denominator) * left_radius)) #+ left_y_nudge
+                        right_particle_y = right_anchor_point[1] + (math.floor(math.sin(math.pi/right_denominator)* right_radius)) #+ right_y_nudge
+                        left_x_distance_to_terminal_point = start_point[0] - left_particle_x
+                        right_x_distance_to_terminal_point = end_point[0] - right_particle_x
+                        left_y_distance_to_terminal_point = start_point[1] - left_particle_y
+                        right_y_distance_to_terminal_point = end_point[1] - right_particle_y
+                        left_path = f"M{left_particle_x} {left_particle_y}L{left_particle_x} {left_particle_y+2}S{left_particle_x-5} {left_particle_y+7} {left_particle_x-7} {left_particle_y+5}Z"
+                        right_path = f"M{right_particle_x} {right_particle_y}L{right_particle_x} {right_particle_y+2}S{right_particle_x-5} {right_particle_y+7} {right_particle_x-7} {right_particle_y+5}Z"
+                        left_particle = {
+                            'xDAP': left_x_distance_to_terminal_point,
+                            'yDAP': left_y_distance_to_terminal_point,
+                            # 'path': left_path
+                            'path': f'M{left_particle_x} {left_particle_y}',
+                            'x': left_particle_x,
+                            'y': left_particle_y
                         }
+                        right_particle = {
+                            'xDAP': right_x_distance_to_terminal_point,
+                            'yDAP': right_y_distance_to_terminal_point,
+                            # 'path': right_path
+                            'path': f'M{right_particle_x} {right_particle_y}',
+                            'x': right_particle_x,
+                            'y': right_particle_y
+                        }
+                        new_thread = {
+                            'terminalA': left_terminal.id,
+                            'terminalB': right_terminal.id,
+                            'd': f'M{start_point[0]} {start_point[1]}L{end_point[0]} {end_point[1]}',
+                            'title': left_terminal.title,
+                            'context': relationship.context,
+                            'colorA': left_terminal.color,
+                            'colorB': right_terminal.color,
+                            'markerA': 'marker' + left_terminal.id + right_terminal.id,
+                            'markerB': 'marker' + right_terminal.id + left_terminal.id,
+                            'gradientId': left_terminal.id + right_terminal.id,
+                            'borderColorA': 'border-[' + left_terminal.color + ']',
+                            'borderColorB': 'border-[' + right_terminal.color + ']',
+                            'titleA': left_terminal.title,
+                            'titleB': right_terminal.title,
+                            'particleA': left_particle,
+                            'particleB': right_particle
+                        }
+
                         timeline_dict['threads'].append(new_thread)
         timeline_distance = self.timeline[-1].x_coordinate + self.timeline[-1].rightmost_column
         years_percentages = []
@@ -477,6 +555,6 @@ class Timeline:
         final_dict = {}
         for timeline in timelines:
             final_dict[timeline.id] = timeline.to_dict()
-        with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
-        # with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
+        # with open('F:\School and Work\jazz-time\data.json', 'w') as outfile:
+        with open('/home/nickolasram/Coding/timeline-web/data.json', 'w') as outfile:
             json.dump(final_dict, outfile, indent=4)
